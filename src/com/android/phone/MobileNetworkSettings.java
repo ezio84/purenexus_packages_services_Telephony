@@ -44,6 +44,7 @@ import android.os.PersistableBundle;
 import android.os.SystemProperties;
 import android.os.UserHandle;
 import android.os.UserManager;
+import android.provider.Settings;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
@@ -90,6 +91,8 @@ public class MobileNetworkSettings extends PreferenceActivity
     private static final String BUTTON_PREFERED_NETWORK_MODE = "preferred_network_mode_key";
     private static final String BUTTON_ROAMING_KEY = "button_roaming_key";
     private static final String BUTTON_NATIONAL_ROAMING_KEY = "button_national_roaming_key";
+    private static final String BUTTON_ROAMING_DATACONNECTION_KEY =
+            "button_roaming_dataconnection_key";
     private static final String BUTTON_CDMA_LTE_DATA_SERVICE_KEY = "cdma_lte_data_service_key";
     private static final String BUTTON_ENABLED_NETWORKS_KEY = "enabled_networks_key";
     private static final String BUTTON_4G_LTE_KEY = "enhanced_4g_lte";
@@ -112,6 +115,7 @@ public class MobileNetworkSettings extends PreferenceActivity
     private ListPreference mButtonPreferredNetworkMode;
     private ListPreference mButtonEnabledNetworks;
     private SwitchPreference mButtonDataRoam;
+    private SwitchPreference mButtonDataRoamConn;
     private SwitchPreference mButton4glte;
     private SwitchPreference mButtonNationalDataRoam;
     private Preference mLteDataServicePref;
@@ -248,6 +252,9 @@ public class MobileNetworkSettings extends PreferenceActivity
             // Do not disable the preference screen if the user clicks Data roaming.
             return true;
         } else if (preference == mButtonNationalDataRoam) {
+            return true;
+        } else if (preference == mButtonDataRoamConn) {
+            // Do not disable the preference screen if the user clicks Data roaming.
             return true;
         } else {
             // if the button is anything but the simple toggle preference,
@@ -456,11 +463,14 @@ public class MobileNetworkSettings extends PreferenceActivity
         mButtonNationalDataRoam = (SwitchPreference) prefSet.findPreference(
                 BUTTON_NATIONAL_ROAMING_KEY);
         mButtonNationalDataRoam.setOnPreferenceChangeListener(this);
+        mButtonDataRoamConn = (SwitchPreference) prefSet.findPreference(
+                BUTTON_ROAMING_DATACONNECTION_KEY);
         mButtonPreferredNetworkMode = (ListPreference) prefSet.findPreference(
                 BUTTON_PREFERED_NETWORK_MODE);
         mButtonEnabledNetworks = (ListPreference) prefSet.findPreference(
                 BUTTON_ENABLED_NETWORKS_KEY);
         mButtonDataRoam.setOnPreferenceChangeListener(this);
+        mButtonDataRoamConn.setOnPreferenceChangeListener(this);
 
         mLteDataServicePref = prefSet.findPreference(BUTTON_CDMA_LTE_DATA_SERVICE_KEY);
 
@@ -540,6 +550,7 @@ public class MobileNetworkSettings extends PreferenceActivity
         if (prefSet != null) {
             prefSet.removeAll();
             prefSet.addPreference(mButtonDataRoam);
+            prefSet.addPreference(mButtonDataRoamConn);
             prefSet.addPreference(mButtonPreferredNetworkMode);
             prefSet.addPreference(mButtonEnabledNetworks);
             prefSet.addPreference(mButton4glte);
@@ -730,7 +741,10 @@ public class MobileNetworkSettings extends PreferenceActivity
         mButtonNationalDataRoam.setChecked(android.provider.Settings.System.getInt(
                 mPhone.getContext().getContentResolver(),
                 android.provider.Settings.System.MVNO_ROAMING, 0) == 1);
-
+        mButtonDataRoamConn.setChecked(
+                Settings.System.getIntForUser(mPhone.getContext().getContentResolver(),
+                        Settings.System.DATACONNECTION_WHEN_ROAMING, 0,
+                        UserHandle.USER_CURRENT) == 1);
         mButtonEnabledNetworks.setValue(Integer.toString(settingsNetworkMode));
         mButtonPreferredNetworkMode.setValue(Integer.toString(settingsNetworkMode));
         UpdatePreferredNetworkModeSummary(settingsNetworkMode);
@@ -756,6 +770,7 @@ public class MobileNetworkSettings extends PreferenceActivity
                 carrierConfig.getBoolean(CarrierConfigManager.KEY_EDITABLE_ENHANCED_4G_LTE_BOOL);
         mButtonNationalDataRoam.setEnabled(hasActiveSubscriptions);
         mButtonDataRoam.setEnabled(hasActiveSubscriptions);
+        mButtonDataRoamConn.setEnabled(hasActiveSubscriptions);
         mButtonPreferredNetworkMode.setEnabled(hasActiveSubscriptions);
         mButtonEnabledNetworks.setEnabled(hasActiveSubscriptions);
         mButton4glte.setEnabled(hasActiveSubscriptions && canChange4glte);
@@ -933,11 +948,15 @@ public class MobileNetworkSettings extends PreferenceActivity
                 mPhone.setDataRoamingEnabled(false);
             }
             return true;
-
         } else if (preference == mButtonNationalDataRoam) {
             boolean value = (Boolean) objValue;
             android.provider.Settings.System.putInt(mPhone.getContext().getContentResolver(),
                     android.provider.Settings.System.MVNO_ROAMING, value ? 1 : 0);
+            return true;
+        } else if (preference == mButtonDataRoamConn) {
+            Settings.System.putIntForUser(mPhone.getContext().getContentResolver(),
+                    Settings.System.DATACONNECTION_WHEN_ROAMING,
+                    mButtonDataRoamConn.isChecked() ? 0 : 1, UserHandle.USER_CURRENT);
             return true;
         }
 

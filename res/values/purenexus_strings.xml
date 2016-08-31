@@ -45,4 +45,8 @@
     <string name="summary_mute_ringer">mute the ringer</string>
     <string name="summary_dismiss_call">dismiss the call</string>
 
+    <!-- Title for the option managing whether or not to show data connection type when roaming. -->
+    <string name="roaming_dataconnection_title">Show data connection type when roaming</string>
+    <string name="roaming_dataconnection_summary">Show data connection type (LTE, 3G, H...) in statusbar / QS icon when roaming and data is connected (instead of just "R")</string>
+
 </resources>

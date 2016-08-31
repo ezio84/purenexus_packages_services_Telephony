@@ -35,6 +35,12 @@
         android:summaryOn="@string/national_roaming_enable"
         android:summaryOff="@string/national_roaming_disable"/>
 
+    <SwitchPreference
+        android:key="button_roaming_dataconnection_key"
+        android:title="@string/roaming_dataconnection_title"
+        android:persistent="false"
+        android:summary="@string/roaming_dataconnection_summary" />
+
     <ListPreference
         android:key="preferred_network_mode_key"
         android:title="@string/preferred_network_mode_title"
