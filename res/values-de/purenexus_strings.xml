@@ -38,4 +38,8 @@
   <string name="summary_do_nothing">Nichts machen</string>
   <string name="summary_mute_ringer">Schaltet den Klingenton stumm</string>
   <string name="summary_dismiss_call">Weist den Anruf ab</string>
+
+    <!-- Title for the option managing whether or not to show data connection type when roaming. -->
+    <string name="roaming_dataconnection_title">Verbindungsart beim Daten-Roaming anzeigen</string>
+    <string name="roaming_dataconnection_summary">Beim Daten-Roaming die Datenverbindungsart (LTE, 3G, H...) in der Statusleiste / QS Kachel anzeigen wenn Daten verbunden sind (statt nur "R")</string>
 </resources>
